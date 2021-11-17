@@ -15,7 +15,7 @@ Kubernetes init containers are containers which must complete before the main co
 - The Kubernetes services also need to have the `nsx_nat` annotations set. See the [example](manifests/example-usage.yml).</br>
 
 ## Usage
-Once all the necessary objects are in place, the pod spec must be updated to add the init container. As shown below the env variables `SERVICE_KEY` and `SERVICE_PREFIX` must match the label assigned to the services needed. The `secretRef` `name` must be the name of the secret in the namespace containing the NSX connection string.
+Once all the necessary objects are in place, the pod spec must be updated to add the init container. As shown below the env variables `SERVICE_KEY` and `SERVICE_PREFIX` must match the label assigned to the services needed. The `secretRef` `name` must be the name of the secret in the namespace containing the NSX password.
 ```
 spec:
   initContainers:
