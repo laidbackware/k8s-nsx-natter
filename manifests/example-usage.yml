@@ -1,0 +1,121 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nsx-natter-sa
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: nsx-natter-role
+rules:
+- apiGroups: ["*"]
+  resources:  
+  - services
+  - pods
+  verbs: ["get", "list"]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: nsx-natter-role-binding
+subjects:
+- kind: ServiceAccount
+  name: nsx-natter-sa
+  apiGroup: ""
+roleRef:
+  kind: Role
+  name: nsx-natter-role
+  apiGroup: ""
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: pods-list
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: pods-list
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nsx-secret
+type: generic
+data:
+  NSX_PASSWORD: Vk13YXJlMSFWTXdhcmUxIQo=
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: natter-example-svc-nodeport-sctp
+  annotations:
+    nsx_nat_ip: "172.20.20.20"
+    nsx_nat_router_name: nat-test
+    nsx_nat_priority: "50" # Must be a string. K8s does not like ints!
+    nsx_nat_service_prefix: sctp # If service doesn't exist it will be created <prefix>-<port number> for each port
+  labels:
+    app: natter-example-pod-0
+spec:
+  selector:
+    app: natter-example-pod
+  ports:
+    - name: sctp-4000
+      protocol: SCTP
+      port: 4000
+    - name: sctp-4001
+      protocol: SCTP
+      port: 4001
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: natter-example-svc-nodeport-tcp
+  annotations:
+    nsx_nat_ip: "172.20.20.20"
+    nsx_nat_router_name: nat-test
+    nsx_nat_priority: "51" # Must be a string. K8s does not like ints!
+    nsx_nat_service_prefix: tcp # If service doesn't exist it will be created <prefix>-<port number> for each port
+  labels:
+    app: natter-example-pod-0
+spec:
+  selector:
+    app: natter-example-pod
+  ports:
+    - protocol: TCP
+      port: 80
+  type: NodePort
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: natter-example-pod
+  labels:
+    app: natter-example-pod
+spec:
+  serviceAccountName: nsx-natter-sa
+  initContainers:
+  - name: nsx-natter
+    image: laidbackware/nsx-natter:latest
+    env: 
+    - name: SERVICE_KEY
+      value: "app"
+    - name: SERVICE_PREFIX
+      value: "natter-example-pod"
+    - name: NSX_MANAGER_FQDN
+      value: 192.168.0.161
+    - name: NSX_USERNAME
+      value: admin
+    envFrom:
+    - secretRef:
+        name: nsx-secret
+  containers:
+  - name: natter-example
+    image: k8s.gcr.io/test-webserver:latest
+    ports:
+    - containerPort: 80
