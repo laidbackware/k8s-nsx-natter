@@ -1,7 +1,7 @@
 # k8s-nsx-natter
 This repo contains the proof of concept code to run inside an init container to enable NSX-T NAT rules to send traffic down to the pod.</br>
 The use case is for services such as SCTP which are not compatible with most load balancers, but also do not need to be load balanced.</br>
-These scripts and not for production use and come with not guarantee or support and are use at consumers own risk.</br>
+These scripts and not for production use and come with no guarantee or support and are used at consumers own risk.</br>
 
 ## Background
 Kubernetes init containers are containers which must complete before the main container in a pod is run. This can be used to run start up scripts and in this example it is used to discover the IP address where a pod is running, then push configuration into NSX-T to enable a DNAT rule to forward traffic to the node port where a service is running.
