@@ -36,7 +36,7 @@ spec:
 ```
 
 ## Architecture
-`k8s_nas_natter.py` orchestrates the following workflow. This happens within the init container at every pod start. 
-![Workflow](images/natter-workflow.png)
+`k8s_nas_natter.py` orchestrates the following workflow. This happens within the init container at every pod start.</br>
+![Workflow](images/natter-workflow.png)</br>
 The NSX-T Gateway is performing DNAT translation like any load balancer or reverse proxy, but in this case there is only ever 1 backend. For a pod to move to another host the init container would update the NAT rule to modify the translated IP to the new host IP where the container resides.</br>
 ![Traffic Flow](images/natter-traffic.png)
