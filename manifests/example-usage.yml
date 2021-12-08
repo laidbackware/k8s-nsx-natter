@@ -68,8 +68,6 @@ metadata:
     nsx_nat_router_name: nat-test
     nsx_nat_priority: "51" # Must be a string. K8s does not like ints!
     nsx_nat_service_prefix: tcp # If service doesn't exist it will be created <prefix>-<port number> for each port
-  labels:
-    app: natter-example-pod-0
 spec:
   selector:
     app: natter-example-pod
@@ -88,12 +86,10 @@ spec:
   serviceAccountName: nsx-natter-sa
   initContainers:
   - name: nsx-natter
-    image: laidbackware/nsx-natter:latest
+    image: laidbackware/nsx-natter:v2
     env: 
-    - name: SERVICE_KEY
+    - name: SELECTOR_KEY # The is the key of the selector
       value: "app"
-    - name: SERVICE_PREFIX
-      value: "natter-example-pod"
     - name: NSX_MANAGER_FQDN
       value: 192.168.0.161
     - name: NSX_USERNAME

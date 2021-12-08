@@ -9,8 +9,7 @@ import os, sys
 def main():
   print("nsx-natter starting")
 
-  k8s_service_key = utils.get_env_var('SERVICE_KEY')
-  k8s_service_prefix = utils.get_env_var('SERVICE_PREFIX')
+  k8s_selector_key = utils.get_env_var('SELECTOR_KEY')
   
   # If KUBERNETES_PORT is set, assume to be inside a cluster and login with in cluster config
   try:
@@ -25,7 +24,7 @@ def main():
   api_client = client.CoreV1Api()
   host_ip = k8s.host_ip_address.get_hosting_ip(api_client)
 
-  nat_rule_properties = k8s.service.get_service_properties_by_label(api_client, k8s_service_key, k8s_service_prefix)
+  nat_rule_properties = k8s.service.get_service_properties_by_selector(api_client, k8s_selector_key)
 
   nsx_client = nsx.client.generate_client()
 

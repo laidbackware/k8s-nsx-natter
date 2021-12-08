@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: natter-test-pod
+  name: natter-example-pod
   labels:
-    app: natter-test-pod
+    app: natter-example-pod
 spec:
   containers:
-  - name: natter-test
+  - name: natter-example
     image: k8s.gcr.io/test-webserver:latest
     ports:
     - containerPort: 80
@@ -14,17 +14,17 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: natter-test-svc-nodeport-sctp
+  name: natter-example-svc-nodeport-sctp
   annotations:
     nsx_nat_ip: "172.20.20.20"
     nsx_nat_router_name: nat-test
     nsx_nat_priority: "50" # Must be a string. K8s does not like ints!
     nsx_nat_service_prefix: sctp # If service doesn't exist it will be created <prefix>-<port number> for each port
   labels:
-    app: natter-test-pod-0
+    app: natter-example-pod-0
 spec:
   selector:
-    app: natter-test-pod
+    app: natter-example-pod
   ports:
     - name: sctp-4000
       protocol: SCTP
@@ -37,18 +37,30 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: natter-test-svc-nodeport-tcp
+  name: natter-example-svc-nodeport-tcp
   annotations:
     nsx_nat_ip: "172.20.20.20"
     nsx_nat_router_name: nat-test
     nsx_nat_priority: "51" # Must be a string. K8s does not like ints!
     nsx_nat_service_prefix: tcp # If service doesn't exist it will be created <prefix>-<port number> for each port
   labels:
-    app: natter-test-pod-0
+    app: natter-example-pod-0
 spec:
   selector:
-    app: natter-test-pod
+    app: natter-example-pod
   ports:
     - protocol: TCP
       port: 80
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: natter-example-svc-nodeport-something-else
+spec:
+  selector:
+    app: natter-example-pod
+  ports:
+    - protocol: TCP
+      port: 8080
   type: NodePort
